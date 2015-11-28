@@ -4,37 +4,45 @@
 GameBoard::GameBoard(size_t gameSize) : gameSize(gameSize), emptyCount(gameSize * gameSize) {
     field.assign(gameSize * gameSize, EMPTY);
     setAt(gameSize / 2 - 1, gameSize / 2 - 1, WHITE);
-    setAt(gameSize / 2 - 1, gameSize / 2, BLACK);
     setAt(gameSize / 2, gameSize / 2 - 1, BLACK);
+    setAt(gameSize / 2 - 1, gameSize / 2, BLACK);
     setAt(gameSize / 2, gameSize / 2, WHITE);
 }
 
+Tile GameBoard::getAt(const Cell cell) const {
+    return field[getIndex(cell)];
+}
+
 Tile GameBoard::getAt(size_t row, size_t column) const {
-    return field[getIndex(row, column)];
+    return getAt(Cell(row, column));
 }
 
-size_t GameBoard::getIndex(size_t row, size_t column) const {
-    assert(isCorrect(row, column));
-    return row * gameSize + column;
+size_t GameBoard::getIndex(const Cell cell) const {
+    assert(isCorrect(cell));
+    return cell.row * gameSize + cell.column;
 }
 
-void GameBoard::setAt(size_t row, size_t column, Tile tile) {
-    if (field[getIndex(row, column)] == EMPTY && tile != EMPTY) {
+void GameBoard::setAt(size_t row, size_t column, const Tile tile) {
+    setAt(Cell(row, column), tile);
+}
+
+void GameBoard::setAt(const Cell cell, const Tile tile) {
+    if (field[getIndex(cell)] == EMPTY && tile != EMPTY) {
         --emptyCount;
     }
-    if (field[getIndex(row, column)] != EMPTY && tile == EMPTY) {
+    if (field[getIndex(cell)] != EMPTY && tile == EMPTY) {
         ++emptyCount;
     }
-    field[getIndex(row, column)] = tile;
+    field[getIndex(cell)] = tile;
 }
 
-bool GameBoard::canPutTile(size_t row, size_t column, Tile tile) const {
-    // Перебираем все 8 направлений.
+bool GameBoard::canPutTile(const Tile tile, const Cell cell) const {
     Tile enemyTile = getEnemyTile(tile);
+    // Перебираем все 8 направлений.
     for (int offsetRow = -1; offsetRow < 2; ++offsetRow) {
         for (int offsetCol = -1; offsetCol < 2; ++offsetCol) {
             Direction direction(offsetRow, offsetCol);
-            int replacedCount = lookThroughTiles(enemyTile, row, column, direction);
+            int replacedCount = lookThroughTiles(cell, direction, enemyTile);
             if (replacedCount != 0) {
                 return true;
             }
@@ -43,8 +51,8 @@ bool GameBoard::canPutTile(size_t row, size_t column, Tile tile) const {
     return false;
 }
 
-void GameBoard::putTile(size_t row, size_t column, Tile tile) {
-    assert(getAt(row, column) == EMPTY);
+void GameBoard::putTile(const Tile tile, const Cell cell) {
+    assert(getAt(cell) == EMPTY);
     assert(tile == WHITE || tile == BLACK);
     // Перебираем все 8 направлений.
     Tile enemyTile = getEnemyTile(tile);
@@ -52,16 +60,19 @@ void GameBoard::putTile(size_t row, size_t column, Tile tile) {
     for (int offsetRow = -1; offsetRow < 2; ++offsetRow) {
         for (int offsetCol = -1; offsetCol < 2; ++offsetCol) {
             Direction direction(offsetRow, offsetCol);
-            replacedCount += goThroughTiles(enemyTile, tile, row, column, direction);
+            replacedCount += goThroughTiles(cell, direction, enemyTile, tile);
         }
     }
     assert(replacedCount != 0);
-    setAt(row, column, tile);
+    setAt(cell, tile);
     print(std::cerr);
 }
 
-bool GameBoard::isCorrect(size_t row, size_t column) const {
-    return row < gameSize && column < gameSize;
+bool GameBoard::isCorrect(const Cell cell) const {
+    return cell.row < gameSize
+           && cell.column < gameSize
+           && cell.row >= 0
+           && cell.column >= 0;
 }
 
 void GameBoard::print(std::ostream &output) const {
@@ -72,7 +83,7 @@ void GameBoard::print(std::ostream &output) const {
     for (size_t row = 0; row < gameSize; ++row) {
         output << row << ' ';
         for (size_t column = 0; column < gameSize; ++column) {
-            switch (getAt(row, column)) {
+            switch (getAt(Cell(row, column))) {
                 case EMPTY:
                     output << '.';
                     break;
@@ -92,56 +103,45 @@ void GameBoard::print(std::ostream &output) const {
     output << '\n';
 }
 
-int GameBoard::goThroughTiles(Tile tile, Tile replacer,
-                              size_t rowStart, size_t colStart,
-                              Direction direction) {
+int GameBoard::goThroughTiles(const Cell &startCell, Direction direction, Tile tile, Tile replacer) {
     bool shouldReplace = tile != replacer;
-    size_t row = rowStart + direction.offsetRow;
-    size_t column = colStart + direction.offsetCol;
+    Cell cell = startCell;
+    cell.move(direction);
 
-    while (isCorrect(row, column) && getAt(row, column) == tile) {
-        row += direction.offsetRow;
-        column += direction.offsetCol;
+    while (isCorrect(cell) && getAt(cell) == tile) {
+        cell.move(direction);
     }
     int replacedCount = 0;
-    if (isCorrect(row, column) && getAt(row, column) == replacer) {
+    if (isCorrect(cell) && getAt(cell) == replacer) {
         direction = direction.getOpposite();
-        row = row + direction.offsetRow;
-        column = column + direction.offsetCol;
-        while (isCorrect(row, column) && getAt(row, column) == tile) {
+        cell.move(direction);
+        while (isCorrect(cell) && getAt(cell) == tile) {
             ++replacedCount;
             if (shouldReplace) {
-                setAt(row, column, replacer);
+                setAt(cell, replacer);
             }
-            row += direction.offsetRow;
-            column += direction.offsetCol;
+            cell.move(direction);
         }
     }
     return replacedCount;
 }
 
 // todo: придумать, как избавиться от копипасты!!!!
-int GameBoard::lookThroughTiles(Tile tile, size_t rowStart, size_t colStart,
-                                GameBoard::Direction direction) const {
-    size_t row = rowStart + direction.offsetRow;
-    size_t column = colStart + direction.offsetCol;
+int GameBoard::lookThroughTiles(const Cell &startCell, Direction direction, Tile tile) const {
+    Cell cell = startCell;
+    cell.move(direction);
 
-    while (isCorrect(row, column) && getAt(row, column) == tile) {
-        row += direction.offsetRow;
-        column += direction.offsetCol;
+    while (isCorrect(cell) && getAt(cell) == tile) {
+        cell.move(direction);
     }
-
     int replacedCount = 0;
     Tile enemyTile = getEnemyTile(tile);
-
-    if (isCorrect(row, column) && getAt(row, column) == enemyTile) {
+    if (isCorrect(cell) && getAt(cell) == enemyTile) {
         direction = direction.getOpposite();
-        row = row + direction.offsetRow;
-        column = column + direction.offsetCol;
-        while (isCorrect(row, column) && getAt(row, column) == tile) {
+        cell.move(direction);
+        while (isCorrect(cell) && getAt(cell) == tile) {
             ++replacedCount;
-            row += direction.offsetRow;
-            column += direction.offsetCol;
+            cell.move(direction);
         }
     }
     return replacedCount;
