@@ -1,5 +1,6 @@
 #include <iostream>
 #include "GameBoard.h"
+#include "Players/RandomPlayer.h"
 
 using namespace std;
 
@@ -7,9 +8,10 @@ static const size_t DEFAULT_GAME_SIZE = 8;
 
 int main() {
     GameBoard gameBoard(DEFAULT_GAME_SIZE);
-//    gameBoard.putTile(Cell(4, 2));
-//    gameBoard.putTile(5, 2, BLACK);
-//    gameBoard.putTile(3, 2, BLACK);
-//    gameBoard.putTile(4, 1, WHITE);
+    gameBoard.print(std::cerr);
+    RandomPlayer player(BLACK);
+    for (int i = 0; i < 4; i++) {
+        gameBoard.putTile(player.takeTurn(gameBoard), BLACK);
+    }
     return 0;
 }

@@ -36,7 +36,11 @@ void GameBoard::setAt(const Cell cell, const Tile tile) {
     field[getIndex(cell)] = tile;
 }
 
-bool GameBoard::canPutTile(const Tile tile, const Cell cell) const {
+bool GameBoard::canPutTile(const Cell cell, const Tile tile) const {
+    assert(tile == WHITE || tile == BLACK);
+    if (getAt(cell) != EMPTY) {
+        return false;
+    }
     Tile enemyTile = getEnemyTile(tile);
     // Перебираем все 8 направлений.
     for (int offsetRow = -1; offsetRow < 2; ++offsetRow) {
@@ -51,7 +55,7 @@ bool GameBoard::canPutTile(const Tile tile, const Cell cell) const {
     return false;
 }
 
-void GameBoard::putTile(const Tile tile, const Cell cell) {
+void GameBoard::putTile(const Cell cell, const Tile tile) {
     assert(getAt(cell) == EMPTY);
     assert(tile == WHITE || tile == BLACK);
     // Перебираем все 8 направлений.
@@ -76,8 +80,9 @@ bool GameBoard::isCorrect(const Cell cell) const {
 }
 
 void GameBoard::print(std::ostream &output) const {
+    output << ' ';
     for (size_t column = 0; column < gameSize; ++column) {
-        output << ' ' << column;
+        output << " " << column;
     }
     output << '\n';
     for (size_t row = 0; row < gameSize; ++row) {
