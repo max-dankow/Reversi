@@ -36,26 +36,29 @@ void GameBoard::setAt(const Cell cell, const Tile tile) {
     field[getIndex(cell)] = tile;
 }
 
-bool GameBoard::canPutTile(const Cell cell, const Tile tile) const {
+int GameBoard::countTurnedOver(const Cell cell, const Tile tile) const {
     assert(tile == WHITE || tile == BLACK);
-    if (getAt(cell) != EMPTY) {
+    if (!isCorrect(cell) || getAt(cell) != EMPTY) {
         return false;
     }
     Tile enemyTile = getEnemyTile(tile);
+    int replacedCount = 0;
     // Перебираем все 8 направлений.
     for (int offsetRow = -1; offsetRow < 2; ++offsetRow) {
         for (int offsetCol = -1; offsetCol < 2; ++offsetCol) {
             Direction direction(offsetRow, offsetCol);
-            int replacedCount = lookThroughTiles(cell, direction, enemyTile);
-            if (replacedCount != 0) {
-                return true;
-            }
+            replacedCount += lookThroughTiles(cell, direction, enemyTile);
         }
     }
-    return false;
+    return replacedCount;
+}
+
+bool GameBoard::canPutTile(const Cell cell, const Tile tile) const {
+    return countTurnedOver(cell, tile) != 0;
 }
 
 void GameBoard::putTile(const Cell cell, const Tile tile) {
+    assert(isCorrect(cell));
     assert(getAt(cell) == EMPTY);
     assert(tile == WHITE || tile == BLACK);
     // Перебираем все 8 направлений.
@@ -169,4 +172,29 @@ Tile GameBoard::getEnemyTile(Tile tile) const {
 
 bool GameBoard::isGameOver() const {
     return emptyCount == 0;
+}
+
+Tile GameBoard::whoWins() const {
+    assert(isGameOver());
+    auto score = calculateScore();
+    if (score.whiteTiles > score.blackTiles) {
+        return WHITE;
+    }
+    if (score.whiteTiles < score.blackTiles) {
+        return BLACK;
+    }
+    return EMPTY;
+}
+
+Score GameBoard::calculateScore() const {
+    Score score;
+    for (Tile tile : field) {
+        if (tile == WHITE) {
+            ++score.whiteTiles;
+        }
+        if (tile == BLACK) {
+            ++score.blackTiles;
+        }
+    }
+    return score;
 }

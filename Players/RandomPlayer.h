@@ -3,7 +3,7 @@
 
 #include "IPlayer.h"
 
-class RandomPlayer : private IPlayer {
+class RandomPlayer : public IPlayer {
 public:
     RandomPlayer(Tile tile) : IPlayer(tile) { }
 

@@ -8,6 +8,9 @@ public:
     IPlayer(Tile tile) : myTile(tile) { }
     virtual Cell takeTurn(const GameBoard gameBoard) = 0;
 
+    const Tile &getMyTile() const {
+        return myTile;
+    }
 protected:
     Tile myTile;
 };

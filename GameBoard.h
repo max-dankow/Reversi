@@ -34,8 +34,28 @@ struct Cell {
     int row, column;
 };
 
+struct Score {
+    Score(int whiteTiles = 0, int blackTiles = 0) :
+            whiteTiles(whiteTiles),
+            blackTiles(blackTiles) { }
+
+    Tile whoWins() {
+        if (whiteTiles > blackTiles) {
+            return WHITE;
+        }
+        if (whiteTiles < blackTiles) {
+            return BLACK;
+        }
+        return EMPTY;
+    }
+
+    int whiteTiles, blackTiles;
+};
+
 class GameBoard {
 public:
+    static const size_t DEFAULT_GAME_SIZE = 8;
+
     explicit GameBoard(size_t gameSize);
 
     size_t getGameSize() const;
@@ -50,6 +70,8 @@ public:
 
     void setAt(size_t row, size_t column, const Tile tile);
 
+    int countTurnedOver(const Cell cell, const Tile tile) const;
+
     bool canPutTile(const Cell cell, const Tile tile) const;
 
     void putTile(const Cell cell, const Tile tile);
@@ -57,6 +79,10 @@ public:
     Tile getEnemyTile(Tile tile) const;
 
     bool isGameOver() const;
+
+    Tile whoWins() const;
+
+    Score calculateScore() const;
 
 private:
     size_t getIndex(const Cell cell) const;
@@ -67,7 +93,6 @@ private:
 
     int lookThroughTiles(const Cell &startCell, Direction direction, Tile tile) const;
 
-private:
     size_t gameSize, emptyCount;
     std::vector<Tile> field;
 };
