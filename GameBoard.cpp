@@ -72,7 +72,7 @@ void GameBoard::putTile(const Cell cell, const Tile tile) {
     }
     assert(replacedCount != 0);
     setAt(cell, tile);
-    print(std::cerr);
+//    print(std::cerr);
 }
 
 bool GameBoard::isCorrect(const Cell cell) const {

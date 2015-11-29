@@ -20,6 +20,9 @@ Score Judge::playGame() {
             currentPlayer = playerBlack;
         }
     }
+    if (noMoveCount >= 2) {
+        gameBoard.print(std::cerr);
+    }
     auto score = gameBoard.calculateScore();
     std::cerr << score.whiteTiles << ' ' << score.blackTiles << '\n';
     return score;

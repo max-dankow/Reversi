@@ -8,6 +8,8 @@ public:
     IPlayer(Tile tile) : myTile(tile) { }
     virtual Cell takeTurn(const GameBoard gameBoard) = 0;
 
+    void play(std::istream &input, std::ostream &output);
+
     const Tile &getMyTile() const {
         return myTile;
     }

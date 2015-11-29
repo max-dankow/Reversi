@@ -31,6 +31,17 @@ struct Cell {
         column += direction.offsetCol;
     }
 
+    void print(std::ostream &output) {
+        output << char('a' + column) << ' ' << row + 1 << '\n';
+    }
+
+    void read(std::istream &input) {
+        char a;
+        input >> a >> row;
+        --row;
+        column = int(a - 'a');
+    }
+
     int row, column;
 };
 

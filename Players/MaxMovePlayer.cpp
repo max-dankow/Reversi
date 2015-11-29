@@ -12,9 +12,6 @@ Cell MaxMovePlayer::takeTurn(const GameBoard gameBoard) {
         for (size_t column = 0; column < gameBoard.getGameSize(); ++column) {
             Cell here(row, column);
             int turnedOver = gameBoard.countTurnedOver(here, myTile);
-            if (turnedOver != 0) {
-                std::cerr << turnedOver << '\n';
-            }
             if (turnedOver > maxTurnedOver
                 || (turnedOver == maxTurnedOver && coin(randomGenerator) == 1)) {
                 maxMove = here;
