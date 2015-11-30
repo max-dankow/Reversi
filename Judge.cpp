@@ -10,6 +10,8 @@ Score Judge::playGame() {
         if (gameBoard.canPutTile(move, currentPlayer->getMyTile())) {
             gameBoard.putTile(move, currentPlayer->getMyTile());
             noMoveCount = 0;
+
+//            gameBoard.print(std::cerr);
         } else {
             ++noMoveCount;
         }

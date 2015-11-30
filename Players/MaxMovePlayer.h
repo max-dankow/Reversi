@@ -7,7 +7,7 @@ class MaxMovePlayer : public IPlayer {
 public:
     MaxMovePlayer(Tile tile) : IPlayer(tile) { }
 
-    virtual Cell takeTurn(const GameBoard gameBoard);
+    virtual Cell takeTurn(const GameBoard &gameBoard);
 
 private:
 };

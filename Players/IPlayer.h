@@ -6,7 +6,8 @@
 class IPlayer {
 public:
     IPlayer(Tile tile) : myTile(tile) { }
-    virtual Cell takeTurn(const GameBoard gameBoard) = 0;
+
+    virtual Cell takeTurn(const GameBoard &gameBoard) = 0;
 
     void play(std::istream &input, std::ostream &output);
 

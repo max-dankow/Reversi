@@ -7,7 +7,7 @@ class RandomPlayer : public IPlayer {
 public:
     RandomPlayer(Tile tile) : IPlayer(tile) { }
 
-    virtual Cell takeTurn(const GameBoard gameBoard);
+    virtual Cell takeTurn(const GameBoard &gameBoard);
 
 private:
 };

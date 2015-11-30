@@ -95,6 +95,8 @@ public:
 
     Score calculateScore() const;
 
+    size_t getEmptyCount() const;
+
 private:
     size_t getIndex(const Cell cell) const;
 
@@ -107,6 +109,10 @@ private:
     size_t gameSize, emptyCount;
     std::vector<Tile> field;
 };
+
+inline size_t GameBoard::getEmptyCount() const {
+    return emptyCount;
+}
 
 inline size_t GameBoard::getGameSize() const {
     return gameSize;

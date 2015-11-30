@@ -1,10 +1,10 @@
 #include "MaxMovePlayer.h"
 #include <random>
 
-static std::random_device randomDevice;
-static std::default_random_engine randomGenerator(randomDevice());
+//static std::random_device randomDevice;
+static std::default_random_engine randomGenerator/*(randomDevice())*/;
 
-Cell MaxMovePlayer::takeTurn(const GameBoard gameBoard) {
+Cell MaxMovePlayer::takeTurn(const GameBoard &gameBoard) {
     int maxTurnedOver = 0;
     Cell maxMove;
     std::uniform_int_distribution<int> coin(0, 1);

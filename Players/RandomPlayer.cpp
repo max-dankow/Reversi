@@ -1,10 +1,10 @@
 #include "RandomPlayer.h"
 #include <random>
 
-static std::random_device randomDevice;
-static std::default_random_engine randomGenerator(randomDevice());
+//static std::random_device randomDevice;
+static std::default_random_engine randomGenerator/*(randomDevice())*/;
 
-Cell RandomPlayer::takeTurn(const GameBoard gameBoard) {
+Cell RandomPlayer::takeTurn(const GameBoard &gameBoard) {
     std::vector<Cell> availableTurns;
     for (size_t row = 0; row < gameBoard.getGameSize(); ++row) {
         for (size_t column = 0; column < gameBoard.getGameSize(); ++column) {
