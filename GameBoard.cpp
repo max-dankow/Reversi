@@ -171,7 +171,18 @@ Tile GameBoard::getEnemyTile(Tile tile) const {
 }
 
 bool GameBoard::isGameOver() const {
-    return emptyCount == 0;
+    if (emptyCount == 0) {
+        return true;
+    }
+    for (size_t row = 0; row < gameSize; ++row) {
+        for (size_t column = 0; column < gameSize; ++column) {
+            Cell here(row, column);
+            if (canPutTile(here, WHITE) || canPutTile(here, BLACK)) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 Tile GameBoard::whoWins() const {

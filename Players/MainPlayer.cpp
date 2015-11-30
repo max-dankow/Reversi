@@ -56,6 +56,15 @@ long MainPlayer::evaluateGameBoard(const GameBoard &gameBoard, Tile tile) const 
     long value = 0;
     auto gameSize = gameBoard.getGameSize();
     auto enemyTile = gameBoard.getEnemyTile(tile);
+//    if (gameBoard.isGameOver()) {
+//        if (gameBoard.whoWins() == tile) {
+//            return 77777;
+//        }
+//        if (gameBoard.whoWins() == enemyTile) {
+//            return -77777;
+//        }
+//        return -1000;
+//    }
     for (size_t row = 0; row < gameSize; ++row) {
         for (size_t column = 0; column < gameSize; ++column) {
             if (gameBoard.getAt(row, column) == tile) {
