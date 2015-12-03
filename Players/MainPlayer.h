@@ -3,6 +3,7 @@
 
 #include <assert.h>
 #include "IPlayer.h"
+#include <chrono>
 
 struct Move {
     Move(Cell cell = {0, 0}, long whitePriority = 0, long blackPriority = 0) :
@@ -35,6 +36,7 @@ private:
 
     long evaluateGameBoard(const GameBoard &gameBoard, Tile tile) const;
 
+    std::chrono::time_point<std::chrono::system_clock> startWorking;
 };
 
 

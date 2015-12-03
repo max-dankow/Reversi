@@ -77,19 +77,21 @@ public:
 
     Tile getAt(size_t row, size_t column) const;
 
-    void setAt(const Cell cell, const Tile tile);
+    void setAt(const Cell &cell, const Tile &tile);
 
-    void setAt(size_t row, size_t column, const Tile tile);
+    void setAt(size_t row, size_t column, const Tile &tile);
 
-    int countTurnedOver(const Cell cell, const Tile tile) const;
+    int countTurnedOver(const Cell &cell, const Tile &tile) const;
 
-    bool canPutTile(const Cell cell, const Tile tile) const;
+    bool canPutTile(const Cell &cell, const Tile &tile) const;
 
-    void putTile(const Cell cell, const Tile tile);
+    void putTile(const Cell &cell, const Tile &tile);
 
     Tile getEnemyTile(Tile tile) const;
 
     bool isGameOver() const;
+
+    bool isGameOverFor(Tile tile) const;
 
     Tile whoWins() const;
 
@@ -104,7 +106,7 @@ private:
 
     int goThroughTiles(const Cell &startCell, Direction direction, Tile tile, Tile replacer);
 
-    int lookThroughTiles(const Cell &startCell, Direction direction, Tile tile) const;
+    int lookThroughTiles(const Cell &startCell, const Direction &direction, Tile tile) const;
 
     size_t gameSize, emptyCount;
     std::vector<Tile> field;

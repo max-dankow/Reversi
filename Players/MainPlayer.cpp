@@ -1,17 +1,24 @@
 #include "MainPlayer.h"
 
 Cell MainPlayer::takeTurn(const GameBoard &gameBoard) {
-    int maxDepth = 2;
+    int maxDepth = 4;
     if (gameBoard.getEmptyCount() < 10) {
         maxDepth = 5;
     }
+    startWorking = std::chrono::system_clock::now();
     return recursion(gameBoard, myTile, 0, maxDepth).cell;
 }
 
 Move MainPlayer::recursion(const GameBoard &gameBoard, Tile tile,
                            size_t depth, size_t maxDepth) const {
 //    gameBoard.print(std::cerr);
-    if (depth > maxDepth) {
+    auto now = std::chrono::steady_clock::now();
+    std::chrono::time_point<std::chrono::system_clock> nowTime;
+    nowTime = std::chrono::system_clock::now();
+
+    std::chrono::duration<double> elapsed_seconds = nowTime - startWorking;
+//    std::cerr << elapsed_seconds.count() << "s.\n";
+    if (depth > maxDepth || gameBoard.isGameOver() || elapsed_seconds.count() > 2.7) {
         Move stop({0, 0},
                   evaluateGameBoard(gameBoard, WHITE),
                   evaluateGameBoard(gameBoard, BLACK));
@@ -39,6 +46,10 @@ Move MainPlayer::recursion(const GameBoard &gameBoard, Tile tile,
             }
         }
     }
+    // У текущего игрока нет ходов. Пропуск хода.
+    if (first) {
+        return recursion(gameBoard, enemyTile, depth, maxDepth);
+    }
     return max;
 }
 
@@ -56,15 +67,14 @@ long MainPlayer::evaluateGameBoard(const GameBoard &gameBoard, Tile tile) const 
     long value = 0;
     auto gameSize = gameBoard.getGameSize();
     auto enemyTile = gameBoard.getEnemyTile(tile);
-//    if (gameBoard.isGameOver()) {
-//        if (gameBoard.whoWins() == tile) {
-//            return 77777;
-//        }
-//        if (gameBoard.whoWins() == enemyTile) {
-//            return -77777;
-//        }
-//        return -1000;
-//    }
+    if (gameBoard.isGameOver()) {
+        if (gameBoard.whoWins() == tile) {
+            return 77777;
+        }
+        if (gameBoard.whoWins() == enemyTile) {
+            return -77777;
+        }
+    }
     for (size_t row = 0; row < gameSize; ++row) {
         for (size_t column = 0; column < gameSize; ++column) {
             if (gameBoard.getAt(row, column) == tile) {
