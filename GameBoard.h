@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+#include <assert.h>
 
 enum Tile {
     EMPTY,
@@ -58,6 +59,16 @@ struct Score {
             return BLACK;
         }
         return EMPTY;
+    }
+
+    long playersScore(Tile tile) {
+        if (tile == WHITE) {
+            return whiteTiles;
+        }
+        if (tile == BLACK) {
+            return blackTiles;
+        }
+        assert(false);
     }
 
     int whiteTiles, blackTiles;

@@ -3,7 +3,7 @@
 Cell MainPlayer::takeTurn(const GameBoard &gameBoard) {
     int maxDepth = 4;
     if (gameBoard.getEmptyCount() < 10) {
-        maxDepth = 8;
+        maxDepth = 10;
     }
     startWorking = std::chrono::system_clock::now();
     return recursion(gameBoard, myTile, 0, maxDepth).cell;
@@ -68,11 +68,12 @@ long MainPlayer::evaluateGameBoard(const GameBoard &gameBoard, Tile tile) const 
     auto gameSize = gameBoard.getGameSize();
     auto enemyTile = gameBoard.getEnemyTile(tile);
     if (gameBoard.isGameOver()) {
+        Score score = gameBoard.calculateScore();
         if (gameBoard.whoWins() == tile) {
-            return 77777;
+            return 77777 + score.playersScore(tile) * 100;
         }
         if (gameBoard.whoWins() == enemyTile) {
-            return -77777;
+            return -77777 - score.playersScore(enemyTile) * 100;
         }
     }
     for (size_t row = 0; row < gameSize; ++row) {
