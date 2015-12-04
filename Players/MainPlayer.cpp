@@ -3,7 +3,7 @@
 Cell MainPlayer::takeTurn(const GameBoard &gameBoard) {
     int maxDepth = 4;
     if (gameBoard.getEmptyCount() < 10) {
-        maxDepth = 5;
+        maxDepth = 8;
     }
     startWorking = std::chrono::system_clock::now();
     return recursion(gameBoard, myTile, 0, maxDepth).cell;
