@@ -1,9 +1,13 @@
+#include <random>
 #include "MainPlayer.h"
 
+//static std::random_device randomDevice;
+static std::default_random_engine randomGenerator/*(randomDevice())*/;
+
 Cell MainPlayer::takeTurn(const GameBoard &gameBoard) {
-    int maxDepth = 4;
-    if (gameBoard.getEmptyCount() < 10) {
-        maxDepth = 10;
+    int maxDepth = 5;
+    if (gameBoard.getEmptyCount() < 12) {
+        maxDepth = 13;
     }
     startWorking = std::chrono::system_clock::now();
     return recursion(gameBoard, myTile, 0, maxDepth).cell;
@@ -17,7 +21,9 @@ Move MainPlayer::recursion(const GameBoard &gameBoard, Tile tile,
     nowTime = std::chrono::system_clock::now();
 
     std::chrono::duration<double> elapsed_seconds = nowTime - startWorking;
-//    std::cerr << elapsed_seconds.count() << "s.\n";
+    /*if (elapsed_seconds.count() > 2.7) {
+        std::cerr << "TL\n";
+    }*/
     if (depth > maxDepth || gameBoard.isGameOver() || elapsed_seconds.count() > 2.7) {
         Move stop({0, 0},
                   evaluateGameBoard(gameBoard, WHITE),
@@ -26,6 +32,8 @@ Move MainPlayer::recursion(const GameBoard &gameBoard, Tile tile,
     }
     auto enemyTile = gameBoard.getEnemyTile(tile);
     auto gameSize = gameBoard.getGameSize();
+    std::bernoulli_distribution coin(0.5);
+    randomGenerator.seed(time(NULL));
     Move current, max;
     bool first = true;
     for (size_t row = 0; row < gameSize; ++row) {
@@ -37,8 +45,11 @@ Move MainPlayer::recursion(const GameBoard &gameBoard, Tile tile,
 //                newGameBoard.print(std::cerr);
                 current = recursion(newGameBoard, enemyTile, depth + 1, maxDepth);
                 if (first ||
-                    current.getPriority(tile) - current.getPriority(enemyTile) / 2
-                    > max.getPriority(tile) - max.getPriority(enemyTile) / 2) {
+                    (current.getPriority(tile) - current.getPriority(enemyTile)
+                     > max.getPriority(tile) - max.getPriority(enemyTile))
+
+                    || ((current.getPriority(tile) - current.getPriority(enemyTile)
+                         == max.getPriority(tile) - max.getPriority(enemyTile)) && coin(randomGenerator))) {
                     max = current;
                     max.cell = here;
                     first = false;
