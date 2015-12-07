@@ -5,7 +5,7 @@ Cell MainPlayer::takeTurn(const GameBoard &gameBoard) {
     gamePhase = getGamePhase(gameBoard);
     int maxDepth = 5;
     if (gamePhase == GAME_END) {
-        maxDepth = 14;
+        maxDepth = 13;
     }
     startWorking = std::chrono::system_clock::now();
     return recursion(gameBoard, myTile, 0, maxDepth).cell;
@@ -94,14 +94,14 @@ long MainPlayer::evaluateGameBoard(const GameBoard &gameBoard, Tile tile) const 
         }
     }
     if (gamePhase == GAME_BEGIN) {
-        value = (long) (cornerValue * 2 + 1.5 * mobilityHeuristic(gameBoard, tile) +
+        value = (long) (cornerValue * 2 + 1 * mobilityHeuristic(gameBoard, tile) +
                         edgeStabilityHeuristic(gameBoard, tile) * 0.5);
     }
     if (gamePhase == GAME_MIDDLE) {
         value = cornerValue * 2 + mobilityHeuristic(gameBoard, tile) + edgeStabilityHeuristic(gameBoard, tile);
     }
     if (gamePhase == GAME_PREEND || gamePhase == GAME_END) {
-        value = (long) (cornerValue * 0.5 + 0.5 * mobilityHeuristic(gameBoard, tile) +
+        value = (long) (cornerValue + 0.5 * mobilityHeuristic(gameBoard, tile) +
                         edgeStabilityHeuristic(gameBoard, tile) * 1.5);
     }
     return value;
@@ -119,6 +119,8 @@ long MainPlayer::mobilityHeuristic(const GameBoard &gameBoard, Tile tile) const 
             }
         }
     }
+    /*gameBoard.print(std::cerr);
+    std::cerr << mobility << '\n';*/
     return mobility;
 }
 
@@ -189,7 +191,7 @@ GamePhase MainPlayer::getGamePhase(const GameBoard &gameBoard) {
     if (gameBoard.getEmptyCount() > 44) {
         return GAME_BEGIN;
     }
-    if (gameBoard.getEmptyCount() < 10) {
+    if (gameBoard.getEmptyCount() < 12) {
         return GAME_END;
     }
     if (gameBoard.getEmptyCount() < 20) {
