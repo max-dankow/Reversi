@@ -11,12 +11,44 @@ enum Tile {
     BLACK
 };
 
+static Tile getEnemyTile(Tile tile) {
+    Tile enemyTile;
+    switch (tile) {
+        case WHITE:
+            enemyTile = BLACK;
+            break;
+        case BLACK:
+            enemyTile = WHITE;
+            break;
+        default:
+            assert(false);
+    }
+    return enemyTile;
+}
+
 struct Direction {
-    Direction(int offsetRow, int offsetCol) :
+
+    Direction(int offsetRow = 0, int offsetCol = 0) :
             offsetRow(offsetRow), offsetCol(offsetCol) { }
 
     Direction getOpposite() const {
         return Direction(this->offsetRow * -1, this->offsetCol * -1);
+    }
+
+    static Direction getDirectionUp() {
+        return Direction(-1, 0);
+    }
+
+    static Direction getDirectionDown() {
+        return Direction(1, 0);
+    }
+
+    static Direction getDirectionLeft() {
+        return Direction(0, -1);
+    }
+
+    static Direction getDirectionRight() {
+        return Direction(0, 1);
     }
 
     int offsetRow, offsetCol;
@@ -110,10 +142,10 @@ public:
 
     size_t getEmptyCount() const;
 
+    bool isCorrect(const Cell cell) const;
+
 private:
     size_t getIndex(const Cell cell) const;
-
-    bool isCorrect(const Cell cell) const;
 
     int goThroughTiles(const Cell &startCell, Direction direction, Tile tile, Tile replacer);
 

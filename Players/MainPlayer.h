@@ -5,13 +5,23 @@
 #include "IPlayer.h"
 #include <chrono>
 
+enum GamePhase {
+    GAME_BEGIN,
+    GAME_MIDDLE,
+    GAME_PREEND,
+    GAME_END
+};
+
+//static std::random_device randomDevice;
+//static std::default_random_engine randomGenerator/*(randomDevice())*/;
+
 struct Move {
     Move(Cell cell = {0, 0}, long whitePriority = 0, long blackPriority = 0) :
             cell(cell),
             whitePriority(whitePriority),
             blackPriority(blackPriority) { }
 
-    long getPriority(Tile tile) {
+    long getPriority(Tile tile) const {
         if (tile == WHITE) {
             return whitePriority;
         }
@@ -19,6 +29,12 @@ struct Move {
             return blackPriority;
         }
         assert(false);
+    }
+
+    bool isBetterForThan(Tile tile, const Move &other) {
+        auto enemyTile = getEnemyTile(tile);
+        return (this->getPriority(tile) - this->getPriority(enemyTile)
+                > other.getPriority(tile) - other.getPriority(enemyTile));
     }
 
     Cell cell;
@@ -36,7 +52,17 @@ private:
 
     long evaluateGameBoard(const GameBoard &gameBoard, Tile tile) const;
 
+    long mobilityHeuristic(const GameBoard &gameBoard, Tile tile) const;
+
+    long potentialMobilityHeuristic(const GameBoard &gameBoard, Tile tile);
+
+    long edgeStabilityHeuristic(const GameBoard &gameBoard, Tile tile) const;
+
+    GamePhase getGamePhase(const GameBoard &gameBoard);
+
     std::chrono::time_point<std::chrono::system_clock> startWorking;
+
+    GamePhase gamePhase;
 };
 
 
