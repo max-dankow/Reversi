@@ -16,7 +16,12 @@ enum GamePhase {
 //static std::default_random_engine randomGenerator/*(randomDevice())*/;
 
 struct Move {
-    Move(Cell cell = {0, 0}, long whitePriority = 0, long blackPriority = 0) :
+    Move(Cell cell = {0, 0}, long score = 0) :
+            cell(cell),
+            score(score) { }
+
+
+    /*Move(Cell cell = {0, 0}, long whitePriority = 0, long blackPriority = 0) :
             cell(cell),
             whitePriority(whitePriority),
             blackPriority(blackPriority) { }
@@ -35,10 +40,11 @@ struct Move {
         auto enemyTile = getEnemyTile(tile);
         return (this->getPriority(tile) - this->getPriority(enemyTile)
                 > other.getPriority(tile) - other.getPriority(enemyTile));
-    }
+    }*/
 
     Cell cell;
-    long whitePriority, blackPriority;
+    //long whitePriority, blackPriority;
+    long score;
 };
 
 class MainPlayer : public IPlayer {
@@ -48,7 +54,7 @@ public:
     virtual Cell takeTurn(const GameBoard &gameBoard);
 
 private:
-    Move recursion(const GameBoard &gameBoard, Tile tile, size_t depth, size_t maxDepth) const;
+    Move recursion(const GameBoard &gameBoard, Tile tile, size_t depth, size_t maxDepth, long alpha, long beta) const;
 
     long evaluateGameBoard(const GameBoard &gameBoard, Tile tile) const;
 

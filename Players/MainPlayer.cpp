@@ -1,18 +1,19 @@
 #include <random>
 #include "MainPlayer.h"
+#include <limits>
 
 Cell MainPlayer::takeTurn(const GameBoard &gameBoard) {
     gamePhase = getGamePhase(gameBoard);
-    int maxDepth = 5;
+    int maxDepth = 6;
     if (gamePhase == GAME_END) {
-        maxDepth = 13;
+        maxDepth = 14;
     }
     startWorking = std::chrono::system_clock::now();
-    return recursion(gameBoard, myTile, 0, maxDepth).cell;
+    return recursion(gameBoard, myTile, 0, maxDepth, std::numeric_limits<long>::min(), std::numeric_limits<long>::max()).cell;
 }
 
 Move MainPlayer::recursion(const GameBoard &gameBoard, Tile tile,
-                           size_t depth, size_t maxDepth) const {
+                           size_t depth, size_t maxDepth, long alpha, long beta) const {
 //    gameBoard.print(std::cerr);
     auto now = std::chrono::steady_clock::now();
     std::chrono::time_point<std::chrono::system_clock> nowTime;
@@ -22,10 +23,8 @@ Move MainPlayer::recursion(const GameBoard &gameBoard, Tile tile,
     /*if (elapsed_seconds.count() > 2.7) {
         std::cerr << "TL\n";
     }*/
-    if (depth > maxDepth || gameBoard.isGameOver() || elapsed_seconds.count() > 2.7) {
-        Move stop({0, 0},
-                  evaluateGameBoard(gameBoard, WHITE),
-                  evaluateGameBoard(gameBoard, BLACK));
+    if (depth > maxDepth || gameBoard.isGameOver() /*|| elapsed_seconds.count() > 2.7*/) {
+        Move stop({0, 0}, evaluateGameBoard(gameBoard, getMyTile()) - evaluateGameBoard(gameBoard, getEnemyTile(myTile)));
         return stop;
     }
     auto enemyTile = gameBoard.getEnemyTile(tile);
@@ -33,6 +32,7 @@ Move MainPlayer::recursion(const GameBoard &gameBoard, Tile tile,
     std::bernoulli_distribution coin(0.5);
 //    randomGenerator.seed(time(NULL));
     Move current, max;
+    max.score = alpha;
     bool first = true;
     for (size_t row = 0; row < gameSize; ++row) {
         for (size_t column = 0; column < gameSize; ++column) {
@@ -41,19 +41,23 @@ Move MainPlayer::recursion(const GameBoard &gameBoard, Tile tile,
                 GameBoard newGameBoard = gameBoard;
                 newGameBoard.putTile(here, tile);
 //                newGameBoard.print(std::cerr);
-                current = recursion(newGameBoard, enemyTile, depth + 1, maxDepth);
-                if (first || current.isBetterForThan(tile, max)) {
+                current = recursion(newGameBoard, enemyTile, depth + 1, maxDepth, beta, max.score* (-1));
+                current.score *= -1;
+                if (first || current.score > max.score) {
                     max = current;
                     max.cell = here;
                     first = false;
+                    if (max.score >= beta) {
+                        return max;
+                    }
                 }
             }
         }
     }
     // У текущего игрока нет ходов. Пропуск хода.
-    if (first) {
+    /*if (first) {
         return recursion(gameBoard, enemyTile, depth, maxDepth);
-    }
+    }*/
     return max;
 }
 
@@ -101,7 +105,7 @@ long MainPlayer::evaluateGameBoard(const GameBoard &gameBoard, Tile tile) const 
         value = cornerValue * 2 + mobilityHeuristic(gameBoard, tile) + edgeStabilityHeuristic(gameBoard, tile);
     }
     if (gamePhase == GAME_PREEND || gamePhase == GAME_END) {
-        value = (long) (cornerValue + 0.5 * mobilityHeuristic(gameBoard, tile) +
+        value = (long) (cornerValue * 2 + 0.5 * mobilityHeuristic(gameBoard, tile) +
                         edgeStabilityHeuristic(gameBoard, tile) * 1.5);
     }
     return value;
@@ -191,7 +195,7 @@ GamePhase MainPlayer::getGamePhase(const GameBoard &gameBoard) {
     if (gameBoard.getEmptyCount() > 44) {
         return GAME_BEGIN;
     }
-    if (gameBoard.getEmptyCount() < 12) {
+    if (gameBoard.getEmptyCount() < 13) {
         return GAME_END;
     }
     if (gameBoard.getEmptyCount() < 20) {
